@@ -56,6 +56,8 @@ ACCESS_TOKEN=$(curl -sf \
   -d "client_id=${GCAL_CLIENT_ID}&client_secret=${GCAL_CLIENT_SECRET}&refresh_token=${GCAL_REFRESH_TOKEN}&grant_type=refresh_token" \
   "https://oauth2.googleapis.com/token" \
   | jq -r '.access_token')
+  
+echo "Token length: ${#ACCESS_TOKEN}" 
 
 # ─── 3. Upsert the Calendar event ────────────────────────────────────────────
 # PUT with a fixed event ID = stateless create-or-replace, zero duplicates.
