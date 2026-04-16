@@ -14,6 +14,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Debug token length
+        env:
+          GCAL_REFRESH_TOKEN: ${{ secrets.GCAL_REFRESH_TOKEN }}
+        run: echo "Refresh token length: ${#GCAL_REFRESH_TOKEN}"
+
       - name: Run calendar sync
         env:
           WANIKANI_API_TOKEN: ${{ secrets.WANIKANI_API_TOKEN }}
@@ -21,10 +26,6 @@ jobs:
           GCAL_CLIENT_SECRET: ${{ secrets.GCAL_CLIENT_SECRET }}
           GCAL_REFRESH_TOKEN: ${{ secrets.GCAL_REFRESH_TOKEN }}
           GCAL_CALENDAR_ID: ${{ secrets.GCAL_CALENDAR_ID }}
-      - name: Debug token length
-        env:
-          GCAL_REFRESH_TOKEN: ${{ secrets.GCAL_REFRESH_TOKEN }}
-          run: echo "Refresh token length: ${#GCAL_REFRESH_TOKEN}"
         run: |
           chmod +x wanikani_calendar_sync.sh
           ./wanikani_calendar_sync.sh
