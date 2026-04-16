@@ -17,8 +17,9 @@ jobs:
       - name: Debug token length
         env:
           GCAL_REFRESH_TOKEN: ${{ secrets.GCAL_REFRESH_TOKEN }}
-          run: |
-            echo "Refresh token length: $(echo -n "$GCAL_REFRESH_TOKEN" | wc -c)"
+        run: |
+            echo Refresh token length: $(echo -n $GCAL_REFRESH_TOKEN | wc -c)
+            
       - name: Run calendar sync
         env:
           WANIKANI_API_TOKEN: ${{ secrets.WANIKANI_API_TOKEN }}
