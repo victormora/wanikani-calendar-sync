@@ -34,6 +34,8 @@ SUMMARY=$(curl -sf \
   "https://api.wanikani.com/v2/summary")
 
 NEXT_REVIEW_AT=$(echo "$SUMMARY" | jq -r '.data.next_reviews_at // empty')
+NEXT_REVIEW_AT=$(echo "$NEXT_REVIEW_AT" | sed 's/\.[0-9]*Z$/Z/')
+
 
 if [ -z "$NEXT_REVIEW_AT" ]; then
   echo "No upcoming reviews scheduled. Nothing to do."
