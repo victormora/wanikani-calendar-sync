@@ -18,7 +18,7 @@ jobs:
         env:
           GCAL_REFRESH_TOKEN: ${{ secrets.GCAL_REFRESH_TOKEN }}
         run: |
-            echo Refresh token length: $(echo -n $GCAL_REFRESH_TOKEN | wc -c)
+          echo "Refresh token length: $(echo -n "$GCAL_REFRESH_TOKEN" | wc -c)"
             
       - name: Run calendar sync
         env:
