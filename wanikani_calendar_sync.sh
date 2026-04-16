@@ -35,21 +35,21 @@ SUMMARY=$(curl -sf \
 
 NEXT_REVIEW_AT=$(echo "$SUMMARY" | jq -r '.data.next_reviews_at // empty')
 
-REVIEW_COUNT=$(echo "$SUMMARY" | jq --arg t "$NEXT_REVIEW_AT" '
-  .data.reviews[] | select(.available_at == $t) | .subject_ids | length
-')
-
-NEXT_REVIEW_AT=$(echo "$NEXT_REVIEW_AT" | sed 's/\.[0-9]*Z$/Z/')
-
 if [ -z "$NEXT_REVIEW_AT" ]; then
   echo "No upcoming reviews scheduled. Nothing to do."
   exit 0
 fi
 
-# Count items in the next review bucket
+# Count items in the next review bucket — compare raw timestamp before normalising
 REVIEW_COUNT=$(echo "$SUMMARY" | jq --arg t "$NEXT_REVIEW_AT" '
   .data.reviews[] | select(.available_at == $t) | .subject_ids | length
 ')
+
+# Default to 0 if no matching bucket found
+REVIEW_COUNT=${REVIEW_COUNT:-0}
+
+# Normalise timestamp — strip microseconds so Google Calendar accepts it
+NEXT_REVIEW_AT=$(echo "$NEXT_REVIEW_AT" | sed 's/\.[0-9]*Z$/Z/')
 
 echo "Next review: ${NEXT_REVIEW_AT} (${REVIEW_COUNT} items)"
 
@@ -62,7 +62,7 @@ ACCESS_TOKEN=$(curl -sf \
   -d "client_id=${GCAL_CLIENT_ID}&client_secret=${GCAL_CLIENT_SECRET}&refresh_token=${GCAL_REFRESH_TOKEN}&grant_type=refresh_token" \
   "https://oauth2.googleapis.com/token" \
   | jq -r '.access_token')
-  
+
 # ─── 3. Upsert the Calendar event ────────────────────────────────────────────
 # PUT with a fixed event ID = stateless create-or-replace, zero duplicates.
 
@@ -97,7 +97,7 @@ HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
   -H "Content-Type: application/json" \
   -d "$EVENT_BODY" \
-  "https://www.googleapis.com/calendar/v3/calendars/primary/events/${FIXED_EVENT_ID}")
+  "https://www.googleapis.com/calendar/v3/calendars/${CAL_ID_ENCODED}/events/${FIXED_EVENT_ID}")
 
 if [ "$HTTP_STATUS" -ge 200 ] && [ "$HTTP_STATUS" -lt 300 ]; then
   echo "Done. Event upserted (HTTP ${HTTP_STATUS}): '${EVENT_TITLE}' at ${NEXT_REVIEW_AT}"
