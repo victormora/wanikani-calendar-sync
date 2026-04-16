@@ -1,0 +1,26 @@
+name: WaniKani Google Calendar Sync
+
+on:
+  schedule:
+    - cron: "/8 * * * *"
+  workflow_dispatch: # manual trigger from the Actions tab
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run calendar sync
+        env:
+          WANIKANI_API_TOKEN: ${{ secrets.WANIKANI_API_TOKEN }}
+          GCAL_CLIENT_ID: ${{ secrets.GCAL_CLIENT_ID }}
+          GCAL_CLIENT_SECRET: ${{ secrets.GCAL_CLIENT_SECRET }}
+          GCAL_REFRESH_TOKEN: ${{ secrets.GCAL_REFRESH_TOKEN }}
+          GCAL_CALENDAR_ID: ${{ secrets.GCAL_CALENDAR_ID }}
+        run: |
+          chmod +x wanikani_calendar_sync.sh
+          ./wanikani_calendar_sync.sh
