@@ -65,7 +65,7 @@ echo "Calendar debug: ${DEBUG}"
 # ─── 3. Upsert the Calendar event ────────────────────────────────────────────
 # PUT with a fixed event ID = stateless create-or-replace, zero duplicates.
 
-FIXED_EVENT_ID="wanikani-next-review-auto"
+FIXED_EVENT_ID="wkninextreviewauto"
 
 PLURAL=""
 [ "$REVIEW_COUNT" -ne 1 ] && PLURAL="s"
