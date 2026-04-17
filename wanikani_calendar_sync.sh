@@ -64,9 +64,10 @@ ACCESS_TOKEN=$(curl -sf \
   | jq -r '.access_token')
 
 # ─── 3. Upsert the Calendar event ────────────────────────────────────────────
-# PUT with a fixed event ID = stateless create-or-replace, zero duplicates.
+# Google Calendar event IDs must be base32hex: only a-v and 0-9.
+# Upsert = POST to create, PUT to update if it already exists.
 
-FIXED_EVENT_ID="wkninextreviewauto"
+FIXED_EVENT_ID="anikanirevievvauto"
 
 PLURAL=""
 [ "$REVIEW_COUNT" -ne 1 ] && PLURAL="s"
@@ -92,12 +93,23 @@ EVENT_BODY=$(jq -n \
     colorId: "5"
   }')
 
+# Try PUT (update) first — falls back to POST (create) on 404
 HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
   -X PUT \
   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
   -H "Content-Type: application/json" \
   -d "$EVENT_BODY" \
   "https://www.googleapis.com/calendar/v3/calendars/${CAL_ID_ENCODED}/events/${FIXED_EVENT_ID}")
+
+if [ "$HTTP_STATUS" = "404" ]; then
+  echo "Event not found, creating..."
+  HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+    -X POST \
+    -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+    -H "Content-Type: application/json" \
+    -d "$EVENT_BODY" \
+    "https://www.googleapis.com/calendar/v3/calendars/${CAL_ID_ENCODED}/events")
+fi
 
 if [ "$HTTP_STATUS" -ge 200 ] && [ "$HTTP_STATUS" -lt 300 ]; then
   echo "Done. Event upserted (HTTP ${HTTP_STATUS}): '${EVENT_TITLE}' at ${NEXT_REVIEW_AT}"
