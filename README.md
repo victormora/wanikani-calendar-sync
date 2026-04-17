@@ -123,3 +123,4 @@ Go to your repository → **Settings** → **Secrets and variables** → **Actio
 
 - **GitHub Actions scheduled workflows** can be delayed by a few minutes during peak times — this is normal and expected, hence the run every 8 minutes. This also allow to update review times when doing lessons.
 - **Refresh token expiry:** Google refresh tokens expire after **6 months of inactivity**. If the workflow suddenly stops working after a long break, repeat step 3.5 and update the `GCAL_REFRESH_TOKEN` secret.
+- **Calendar event ID charset**: Google Calendar event IDs only allow lowercase letters a–v and digits 0–9 (base32hex). Letters w, x, y, and z are not valid and will cause a 400 error! Keep this in mind if you ever change the fixed event ID in the script.
