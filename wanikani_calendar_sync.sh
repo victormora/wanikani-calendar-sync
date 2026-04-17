@@ -67,7 +67,7 @@ ACCESS_TOKEN=$(curl -sf \
 # Google Calendar event IDs must be base32hex: only a-v and 0-9.
 # Upsert = POST to create, PUT to update if it already exists.
 
-FIXED_EVENT_ID="anikanirevievvauto"
+FIXED_EVENT_ID="vvanikanirevievvauto" # No w-z allowed!
 
 PLURAL=""
 [ "$REVIEW_COUNT" -ne 1 ] && PLURAL="s"
