@@ -88,7 +88,7 @@ EVENT_BODY=$(jq -n \
     end:   { dateTime: $time, timeZone: "UTC" },
     reminders: {
       useDefault: false,
-      overrides: [{ method: "popup", minutes: 0 }]
+      overrides: [{ method: "notification", minutes: 0 }]
     },
     colorId: "5"
   }')
