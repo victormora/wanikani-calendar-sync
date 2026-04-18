@@ -7,7 +7,7 @@
 #   WANIKANI_API_TOKEN   — your WaniKani v2 API token
 #   GCAL_CLIENT_ID       — OAuth2 client ID (Desktop app type)
 #   GCAL_CLIENT_SECRET   — OAuth2 client secret
-#   GCAL_REFRESH_TOKEN   — long-lived refresh token (from get_refresh_token.py)
+#   GCAL_REFRESH_TOKEN   — long-lived refresh token
 #   GCAL_CALENDAR_ID     — target calendar ID (yourname@gmail.com for primary)
 
 set -e
@@ -51,6 +51,10 @@ REVIEW_COUNT=${REVIEW_COUNT:-0}
 # Normalise timestamp — strip microseconds so Google Calendar accepts it
 NEXT_REVIEW_AT=$(echo "$NEXT_REVIEW_AT" | sed 's/\.[0-9]*Z$/Z/')
 
+# End time = start + 1 hour (required for notification to persist on mobile)
+EVENT_END=$(date -u -d "${NEXT_REVIEW_AT} + 1 hour" "+%Y-%m-%dT%H:%M:%SZ" 2>/dev/null \
+  || date -u -v+1H -jf "%Y-%m-%dT%H:%M:%SZ" "${NEXT_REVIEW_AT}" "+%Y-%m-%dT%H:%M:%SZ")
+
 echo "Next review: ${NEXT_REVIEW_AT} (${REVIEW_COUNT} items)"
 
 # ─── 2. Exchange refresh token for a short-lived access token ────────────────
@@ -80,12 +84,13 @@ EVENT_BODY=$(jq -n \
   --arg id    "$FIXED_EVENT_ID" \
   --arg title "$EVENT_TITLE" \
   --arg time  "$NEXT_REVIEW_AT" \
+  --arg end   "$EVENT_END" \
   '{
     id: $id,
     summary: $title,
     description: "Auto-synced by wanikani-review-notifier.\nhttps://www.wanikani.com/review",
     start: { dateTime: $time, timeZone: "UTC" },
-    end:   { dateTime: $time, timeZone: "UTC" },
+    end:   { dateTime: $end,  timeZone: "UTC" },
     reminders: {
       useDefault: true
     },
