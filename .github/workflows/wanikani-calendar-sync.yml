@@ -1,8 +1,8 @@
 name: WaniKani Google Calendar Sync
 
 on:
-  schedule:
-    - cron: "*/8 * * * *"
+  # schedule:
+  #  - cron: "*/8 * * * *"
   workflow_dispatch: # manual trigger from the Actions tab
 
 jobs:
